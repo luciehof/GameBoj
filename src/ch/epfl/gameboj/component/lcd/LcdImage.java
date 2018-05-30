@@ -103,9 +103,8 @@ public final class LcdImage {
             lines = new ArrayList<>();
             LcdImageLine line = new LcdImageLine.Builder(width).build();
 
-            for (int i = 0; i < height; ++i) {
+            for (int i = 0; i < height; ++i)
                 lines.add(i, line);
-            }
         }
 
         /**
@@ -116,6 +115,7 @@ public final class LcdImage {
          */
         public Builder setLine(int index, LcdImageLine line) {
             lines.set(index, line);
+
             return this;
         }
 

@@ -14,6 +14,8 @@ import java.util.Arrays;
 public final class BitVector {
 
     private static final int MAX_8_BITS = 0xFF;
+    private static final int MAX_32_BITS = 0xFFFFFFFF;
+
     private final int[] vector;
 
     private BitVector(int[] vector) {
@@ -25,31 +27,27 @@ public final class BitVector {
      * the given value.
      *
      * @param size      size of the bits vector to construct
-     * @param initValue value of the initial bits (true for 1, false
-     *                  for 0)
-     * @throws IllegalArgumentException if size is negative or not a multiple of 32
+     * @param initValue value of the initial bits (true for 1, false for 0)
      */
-    public BitVector(int size, boolean initValue)
-            throws IllegalArgumentException {
+    public BitVector(int size, boolean initValue) {
         Preconditions.checkArgument((size % Integer.SIZE == 0) && size > 0);
 
         vector = new int[size / Integer.SIZE];
         if (initValue)
-            Arrays.fill(vector, 0xFFFFFFFF);
+            Arrays.fill(vector, MAX_32_BITS);
     }
 
     /**
      * Constructs a bits vector of the given size in which all bits are 0.
      *
      * @param size size of the bits vector to construct
-     * @throws IllegalArgumentException if size is negative or not a multiple of 32
      */
-    public BitVector(int size) throws IllegalArgumentException {
+    public BitVector(int size) {
         this(size, false);
     }
 
     /**
-     * Returns the vector's size in number of bits
+     * Returns the vector's size in number of bits.
      *
      * @return an integer representing the vector's size
      */
@@ -58,7 +56,7 @@ public final class BitVector {
     }
 
     /**
-     * Tests if the bit at the given index is 1 (true) or 0 (false)
+     * Tests if the bit at the given index is 1 (true) or 0 (false).
      *
      * @param index of the bit we want to test
      * @return a boolean representing the bit value
@@ -70,21 +68,23 @@ public final class BitVector {
     }
 
     /**
-     * Computes the complement of attribute vector
+     * Computes the complement of attribute vector.
      *
      * @return an int[] representing the complement of vector
      */
     public BitVector not() {
         int length = vector.length;
         int[] comp = new int[length];
+
         for (int i = 0; i < length; ++i)
             comp[i] = ~vector[i];
+
         return new BitVector(comp);
     }
 
     /**
      * Computes the conjunction between attribute vector and the given other
-     * vector
+     * vector.
      *
      * @param otherVector an int[] we want to make the conjunction with
      * @return an int[] representing the conjunction between vector and
@@ -95,14 +95,16 @@ public final class BitVector {
 
         int length = vector.length;
         int[] and = new int[length];
+
         for (int i = 0; i < length; ++i)
             and[i] = otherVector.vector[i] & vector[i];
+
         return new BitVector(and);
     }
 
     /**
      * Computes the disjunction between attribute vector and the given other
-     * vector
+     * vector.
      *
      * @param otherVector an int[] we want to make the disjunction with
      * @return an int[] representing the disjunction between vector and
@@ -113,17 +115,21 @@ public final class BitVector {
 
         int length = vector.length;
         int[] or = new int[length];
+
         for (int i = 0; i < length; ++i)
             or[i] = otherVector.vector[i] | vector[i];
+
         return new BitVector(or);
     }
 
     private int extractElement(boolean extractWrapped, int index) {
         int length = vector.length;
+
         if (extractWrapped)
             return vector[Math.floorMod(index, length)];
         if (0 <= index && index < length)
             return vector[index];
+
         return 0;
     }
 
@@ -134,13 +140,11 @@ public final class BitVector {
         int[] extractVec = new int[tabSize];
         int extractIndex = Math.floorDiv(index, Integer.SIZE);
 
-        if (Math.floorMod(index, Integer.SIZE) == 0) {
-            for (int i = 0; i < tabSize; ++i) {
+        if (Math.floorMod(index, Integer.SIZE) == 0)
+            for (int i = 0; i < tabSize; ++i)
                 extractVec[i] = extractElement(extractWrapped,
                         extractIndex + i);
-            }
-
-        } else {
+        else {
             for (int i = 0; i < tabSize; ++i) {
                 int rightBlock = extractElement(extractWrapped,
                         extractIndex + i);
@@ -152,13 +156,13 @@ public final class BitVector {
                                 - shift);
             }
         }
-
         return new BitVector(extractVec);
     }
 
+
     /**
      * Extracts a vector of the given size in the zero extension of attribute
-     * vector
+     * vector.
      *
      * @param index integer, where we start the extraction
      * @param size  integer, number of bits extracted at the left of index
@@ -170,7 +174,7 @@ public final class BitVector {
 
     /**
      * Extracts a vector of the given size in the wrapped extension of attribute
-     * vector
+     * vector.
      *
      * @param index integer, where we start the extraction
      * @param size  integer, number of bits extracted at the left of index
@@ -186,7 +190,7 @@ public final class BitVector {
 
     /**
      * Returns a copy of the current vector shifted by the given distance
-     * (to the left if distance is positive, right otherwise)
+     * (to the left if distance is positive, right otherwise).
      *
      * @param distance integer representing how many bits we shift
      * @return the current vector shifted by distance
@@ -207,9 +211,11 @@ public final class BitVector {
 
     @Override public String toString() {
         StringBuilder s = new StringBuilder();
+
         for(int i = 0; i < vector.length; ++i)
             for(int j = 0; j < Integer.SIZE; ++j)
                 s.append(Bits.extract(vector[i], j, 1));
+
         return s.reverse().toString();
     }
 
@@ -221,35 +227,33 @@ public final class BitVector {
 
         /**
          * Constructs a bit vector builder, with the given size (in bits)
-         * (all bits are set to 0 initially)
+         * (all bits are set to 0 initially).
          *
          * @param size of the bit vector we construct (integer)
          */
         public Builder(int size) {
-            Preconditions.checkArgument((size % Integer.SIZE == 0) && size > 0);
+            Preconditions.checkArgument((size % Integer.SIZE == 0)
+                    && size > 0);
+
             buildingVec = new int[size / Integer.SIZE];
         }
 
         /**
-         * Sets the byte at the given index at the given value
+         * Sets the byte at the given index at the given value.
          *
          * @param index at which we want to set the byte
          * @param value we want to set the byte at
-         * @throws IndexOutOfBoundsException if the given index is not valid for
-         *                                   the vector in construction
          */
-        public Builder setByte(int index, int value)
-                throws IndexOutOfBoundsException, IllegalStateException {
+        public Builder setByte(int index, int value) {
+            Preconditions.checkBits8(value);
+            if (buildingVec == null)
+                throw new IllegalStateException();
             if (!(0 <= index && index < buildingVec.length * Byte.SIZE))
                 throw new IndexOutOfBoundsException();
 
-            Preconditions.checkArgument(0 <= value && value <= MAX_8_BITS);
-            if (buildingVec == null)
-                throw new IllegalStateException();
-
-            buildingVec[index / 4] =
-                    (~(MAX_8_BITS << (index % 4) * Byte.SIZE) & buildingVec[index / 4])
-                            | value << ((index % 4) * Byte.SIZE);
+            buildingVec[index / 4] = (~(MAX_8_BITS << (index % 4) * Byte.SIZE)
+                    & buildingVec[index / 4])
+                    | value << ((index % 4) * Byte.SIZE);
 
             return this;
         }
@@ -262,6 +266,7 @@ public final class BitVector {
         public BitVector build() {
             if (buildingVec == null)
                 throw new IllegalStateException();
+
             BitVector bV = new BitVector(buildingVec);
             buildingVec = null;
 

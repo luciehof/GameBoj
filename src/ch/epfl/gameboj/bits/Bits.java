@@ -49,11 +49,8 @@ public final class Bits {
      *
      * @param index integer
      * @return a mask with a single 1 at the given index
-     * @throws IndexOutOfBoundsException if the index does not satisfy
-     *                                   0 <= index < 32
      */
     public static int mask(int index) {
-
         Objects.checkIndex(index, Integer.SIZE);
 
         return 1 << index;
@@ -65,7 +62,6 @@ public final class Bits {
      * @param bits  the integer which "index" bit is tested
      * @param index the index of the bit we want to test
      * @return true if the bit at the given index is 1, false if it is 0
-     * @throws IndexOutOfBoundsException if the index is invalid
      */
     public static boolean test(int bits, int index)
             throws IndexOutOfBoundsException {
@@ -96,19 +92,16 @@ public final class Bits {
      * @param index    the index of the bit to change
      * @param newValue the value of the new bit, true for 1, false for 0
      * @return the same value as bits with a different bit at the given index
-     * @throws IndexOutOfBoundsException if index is invalid
      */
     public static int set(int bits, int index, boolean newValue) {
 
-        if (!(0 <= index && index < Integer.SIZE)) {
+        if (!(0 <= index && index < Integer.SIZE))
             throw new IndexOutOfBoundsException();
-        }
 
-        if (newValue) {
+        if (newValue)
             return mask(index) | bits;
-        } else {
+        else
             return (mask(index) | bits) - mask(index);
-        }
     }
 
     /**
@@ -117,15 +110,13 @@ public final class Bits {
      * @param size integer, number of LSB to return
      * @param bits the integer which 'size' LSB are returned
      * @return the 'size' LSB of bits
-     * @throws IllegalArgumentException if size does not satisfy 0 <= size <= 32
      */
     public static int clip(int size, int bits) {
         Preconditions.checkArgument(0 <= size);
         Preconditions.checkArgument(size <= Integer.SIZE);
 
-        if (size == Integer.SIZE) {
+        if (size == Integer.SIZE)
             return bits;
-        }
 
         return bits & (mask(size) - 1);
     }
@@ -139,7 +130,6 @@ public final class Bits {
      * @param size  integer, number of bits to extract from bits
      * @return a value which 'size' LSB equal the ones of bits from 'start'
      * to 'start + size'
-     * @throws IndexOutOfBoundsException if start and start + size are invalid
      */
     public static int extract(int bits, int start, int size) {
         Objects.checkFromIndexSize(start, size, Integer.SIZE);
@@ -155,8 +145,6 @@ public final class Bits {
      * @param bits     the integer which bits are rotated
      * @param distance the distance of rotation
      * @return the same value as bits with rotated bits
-     * @throws IllegalArgumentException if size does not satisfy 0 < size <= 32
-     *                                  or if bits is smaller than size
      */
     public static int rotate(int size, int bits, int distance) {
         Preconditions.checkArgument(0 < size && size <= Integer.SIZE);
@@ -174,7 +162,6 @@ public final class Bits {
      *
      * @param b the integer to extend
      * @return b with the value of b's 7th bit extended to the 31st bit
-     * @throws IllegalArgumentException if b is not an 8 bits value
      */
     public static int signExtend8(int b) {
         Preconditions.checkBits8(b);
@@ -189,7 +176,6 @@ public final class Bits {
      *
      * @param b the integer which bits are reversed
      * @return the 8 LSB of b which were reversed
-     * @throws IllegalArgumentException if b is not an 8 bits value
      */
     public static int reverse8(int b) {
         Preconditions.checkBits8(b);
@@ -202,7 +188,6 @@ public final class Bits {
      *
      * @param b the integer which bits are conversed
      * @return the 8 LSB of b which were conversed
-     * @throws IllegalArgumentException if b is not an 8 bits value
      */
     public static int complement8(int b) {
         Preconditions.checkBits8(b);
@@ -218,7 +203,6 @@ public final class Bits {
      * @param lowB  the LSB of the returned integer
      * @return an integer which MSB are highB's bits and which LSB are lowB's
      * bits
-     * @throws IllegalArgumentException if highB or lowB are not 8 bits values
      */
     public static int make16(int highB, int lowB) {
         Preconditions.checkBits8(highB);

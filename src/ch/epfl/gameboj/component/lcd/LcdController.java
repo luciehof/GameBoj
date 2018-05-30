@@ -142,7 +142,9 @@ public final class LcdController implements Component, Clocked {
             reallycycle = false;
         }
 
-        int currentLine = regFile.get(Reg.LY);
+        long relativeCycle = currentCycle - lastImageCycle;
+        int currentLine = (int) (relativeCycle / LINE_DRAW_DURATION) % LY_MAX_VALUE;
+        //int currentLine = regFile.get(Reg.LY);
 
         if (currentLine < LCD_HEIGHT) {
 
@@ -351,14 +353,10 @@ public final class LcdController implements Component, Clocked {
         Objects.checkIndex(indexLine, LCD_HEIGHT);
 
         int lineToCompute = Bits.clip(8, indexLine + regFile.get(Reg.SCY));
-        LcdImageLine bgLine = new LcdImageLine.Builder(BG_PIXEL_SIZE).build();
+        LcdImageLine completeLine = new LcdImageLine.Builder(BG_PIXEL_SIZE).build();
 
         boolean drawBg = regFile.testBit(Reg.LCDC, LCDCBits.BG);
-        int wy = regFile.get(Reg.WY);
-        int wx = regFile.get(Reg.WX) - SET_WX;
-        boolean drawWin = regFile.testBit(Reg.LCDC, LCDCBits.WIN) && 0 <= wx
-                && wx < LCD_WIDTH && wy <= indexLine;
-        boolean drawSprite = regFile.testBit(Reg.LCDC, LCDCBits.OBJ);
+
         int palette = regFile.get(Reg.BGP);
 
         //======================================================================
@@ -368,14 +366,18 @@ public final class LcdController implements Component, Clocked {
             int plageBg = regFile.testBit(Reg.LCDC, LCDCBits.BG_AREA) ?
                     AddressMap.BG_DISPLAY_DATA[1] :
                     AddressMap.BG_DISPLAY_DATA[0];
-            bgLine = constructFromTiles(BG_SIZE, plageBg, lineToCompute)
+            completeLine = constructFromTiles(BG_SIZE, plageBg, lineToCompute)
                     .extractWrapped(regFile.get(Reg.SCX), LCD_WIDTH)
                     .mapColors(palette);
         }
-        LcdImageLine completeLine = bgLine;
 
         //======================================================================
         // Window drawing
+
+        int wy = regFile.get(Reg.WY);
+        int wx = regFile.get(Reg.WX) - SET_WX;
+        boolean drawWin = regFile.testBit(Reg.LCDC, LCDCBits.WIN) &&
+                0 <= wx && wx < LCD_WIDTH && wy <= indexLine;
 
         if (drawWin) {
             int plageWin = regFile.testBit(Reg.LCDC, LCDCBits.WIN_AREA) ?
@@ -391,67 +393,62 @@ public final class LcdController implements Component, Clocked {
         }
 
         //======================================================================
-        // Sprites
+        // Sprites drawing
 
-        if (drawSprite) {
-            LcdImageLine spritesLineBG = new LcdImageLine.Builder(LCD_WIDTH)
+        if (regFile.testBit(Reg.LCDC, LCDCBits.OBJ)) {
+            LcdImageLine spritesLineBg = new LcdImageLine.Builder(LCD_WIDTH)
                     .build();
-            LcdImageLine spritesLineFront = new LcdImageLine.Builder(LCD_WIDTH)
+            LcdImageLine spritesLineFg = new LcdImageLine.Builder(LCD_WIDTH)
                     .build();
 
-            int[] spritesTable = spritesIntersectingLine(lineToCompute);
+            int[] spritesTable = spritesIntersectingLine(indexLine);
 
             for (int spriteIndex : spritesTable) {
 
-                LcdImageLine.Builder singleSpriteLineBuilder = new LcdImageLine.Builder(
-                        LCD_WIDTH);
+                LcdImageLine.Builder singleSpriteLineBuilder =
+                        new LcdImageLine.Builder(LCD_WIDTH);
 
-                int spriteCaracteristics = oam.read(SPRITE_CARACTERISICS_INDEX
+                int spriteChars = oam.read(SPRITE_CARACTERISICS_INDEX
                         + spriteIndex * SPRITE_ATTRIBUTES_SIZE);
-                boolean behindBg = Bits
-                        .test(spriteCaracteristics, SpriteBits.BEHIND_BG);
-                boolean flipV = Bits.test(spriteCaracteristics, SpriteBits.FLIP_V);
-                boolean flipH = Bits.test(spriteCaracteristics, SpriteBits.FLIP_H);
-                boolean spritePalette = Bits
-                        .test(spriteCaracteristics, SpriteBits.PALETTE);
-                int paletteSprite = spritePalette ?
-                        regFile.get(Reg.OBP1) :
-                        regFile.get(Reg.OBP0);
 
-                int coordY = oam.read(spriteIndex * SPRITE_ATTRIBUTES_SIZE)
-                        - BIG_TILE_HEIGHT;
                 int coordX = oam.read(SPRITE_X_COORDINATE_INDEX
                         + spriteIndex * SPRITE_ATTRIBUTES_SIZE) - TILE_SIZE;
+                int coordY = oam.read(spriteIndex * SPRITE_ATTRIBUTES_SIZE)
+                        - BIG_TILE_HEIGHT;
 
+                boolean flipV = Bits.test(spriteChars, SpriteBits.FLIP_V);
                 int spriteLine = lineToCompute - coordY;
-                int spriteHeight = regFile
-                        .testBit(Reg.LCDC, LCDCBits.OBJ_SIZE) ?
-                        BIG_TILE_HEIGHT :
-                        TILE_SIZE;
-                spriteLine = flipV ?
-                        spriteHeight - 1 - spriteLine :
-                        spriteLine;
+                int spriteHeight = regFile.testBit(Reg.LCDC, LCDCBits.OBJ_SIZE) ?
+                        BIG_TILE_HEIGHT : TILE_SIZE;
 
+                spriteLine = flipV ? spriteHeight - 1 - spriteLine : spriteLine;
+
+                boolean flipH = Bits.test(spriteChars, SpriteBits.FLIP_H);
                 int lsb = getByte(spriteIndex, spriteLine, true, flipH);
                 int msb = getByte(spriteIndex, spriteLine, false, flipH);
+
+                int paletteSprite = Bits.test(spriteChars, SpriteBits.PALETTE) ?
+                        regFile.get(Reg.OBP1) : regFile.get(Reg.OBP0);
 
                 LcdImageLine singleSpriteLine = singleSpriteLineBuilder
                         .setBytes(0, msb, lsb).build().shift(coordX)
                         .mapColors(paletteSprite);
 
-                if (behindBg)
-                    spritesLineBG = singleSpriteLine.below(spritesLineBG);
+                if (Bits.test(spriteChars, SpriteBits.BEHIND_BG))
+                    spritesLineBg = singleSpriteLine.below(spritesLineBg);
                 else
-                    spritesLineFront = singleSpriteLine.below(spritesLineFront);
+                    spritesLineFg = singleSpriteLine.below(spritesLineFg);
             }
 
             BitVector bgLineOpacity = completeLine.getOpacity()
-                    .or(spritesLineBG.getOpacity().not());
-            LcdImageLine bgLineWitSprites = spritesLineBG
+                    .or(spritesLineBg.getOpacity().not());
+            LcdImageLine bgLineWitSprites = spritesLineBg
                     .below(completeLine, bgLineOpacity);
 
-            completeLine = bgLineWitSprites.below(spritesLineFront);
+            completeLine = bgLineWitSprites.below(spritesLineFg);
         }
+
+        //======================================================================
 
         return completeLine;
     }

@@ -14,9 +14,12 @@ import java.util.Objects;
  */
 public final class LcdImageLine {
 
+    private static final int NUMBER_COLORS = 4;
+    private static final int NO_CHANGE_PALETTE = 0b11_10_01_00;
+
     private BitVector msb;
     private final BitVector lsb;
-    private final BitVector opacity; // est ce que le final est vraiment necessaire puisque BitVector est deja immuable ?...
+    private final BitVector opacity;
 
     /**
      * Constructs an lcd image line.
@@ -24,11 +27,8 @@ public final class LcdImageLine {
      * @param msb     BitVector representing the most significant bits
      * @param lsb     BitVector representing the less significant bits
      * @param opacity BitVector representing the opacity of the image line
-     * @throws IllegalArgumentException if the given BitVector do not have the
-     *                                  same size
      */
-    public LcdImageLine(BitVector msb, BitVector lsb, BitVector opacity)
-            throws IllegalArgumentException {
+    public LcdImageLine(BitVector msb, BitVector lsb, BitVector opacity) {
         Preconditions.checkArgument(
                 msb.size() == lsb.size() && lsb.size() == opacity.size());
 
@@ -84,6 +84,7 @@ public final class LcdImageLine {
         BitVector newMsb = msb.shift(distance);
         BitVector newLsb = lsb.shift(distance);
         BitVector newOpacity = opacity.shift(distance);
+
         return new LcdImageLine(newMsb, newLsb, newOpacity);
     }
 
@@ -99,6 +100,7 @@ public final class LcdImageLine {
         BitVector newMsb = msb.extractWrapped(index, size);
         BitVector newLsb = lsb.extractWrapped(index, size);
         BitVector newOpacity = opacity.extractWrapped(index, size);
+
         return new LcdImageLine(newMsb, newLsb, newOpacity);
     }
 
@@ -112,14 +114,15 @@ public final class LcdImageLine {
     public LcdImageLine mapColors(int palette) {
         Preconditions.checkBits8(palette);
 
-        int noChangePalette = 0b11_10_01_00;
-        if (palette == noChangePalette)
+        if (palette == NO_CHANGE_PALETTE)
             return this;
 
         BitVector newMsb = new BitVector(size());
         BitVector newLsb = new BitVector(size());
-        for (int i = 0; i < 4; ++i) {
+
+        for (int i = 0; i < NUMBER_COLORS; ++i) {
             BitVector maskColor;
+
             switch (i) {
             case 0: // Color 0 : lsb = 0, msb = 0
                 maskColor = (msb.not()).and(lsb.not());
@@ -143,7 +146,6 @@ public final class LcdImageLine {
                     newMsb.or(maskColor) :
                     newMsb;
         }
-
         return new LcdImageLine(newMsb, newLsb, opacity);
     }
 
@@ -155,9 +157,9 @@ public final class LcdImageLine {
      * @return an LcdImageLine representing the composition of the current and
      * the given LcdImageLine
      */
-    public LcdImageLine below(LcdImageLine otherLine)
-            throws IllegalArgumentException {
+    public LcdImageLine below(LcdImageLine otherLine) {
         BitVector otherOpacity = otherLine.getOpacity();
+
         return below(otherLine, otherOpacity);
     }
 
@@ -168,19 +170,20 @@ public final class LcdImageLine {
      * @param otherLine LcdImageLine we want to compose with
      * @return an LcdImageLine representing the composition of the current and
      * the given LcdImageLine
-     * @throws IllegalArgumentException if the given LcdImageLine and the
-     *                                  current on do not have the same size
      */
-    public LcdImageLine below(LcdImageLine otherLine, BitVector newOpacity)
-            throws IllegalArgumentException {
+    public LcdImageLine below(LcdImageLine otherLine, BitVector newOpacity) {
         Preconditions.checkArgument(otherLine.size() == this.size());
+
         BitVector otherMsb = otherLine.getMsb();
         BitVector newMsb = (otherMsb.and(newOpacity))
                 .or(msb.and(newOpacity.not()));
+
         BitVector otherLsb = otherLine.getLsb();
         BitVector newLsb = (otherLsb.and(newOpacity))
                 .or(lsb.and(newOpacity.not()));
+
         BitVector composedOpacity = opacity.or(newOpacity);
+
         return new LcdImageLine(newMsb, newLsb, composedOpacity);
     }
 
@@ -191,11 +194,8 @@ public final class LcdImageLine {
      * @param otherLine LcdImageLine we want to join with
      * @param index     integer from which we join the given LcdImageLine
      * @return an LcdImageLine joining the current one with the given one
-     * @throws IllegalArgumentException if the given LcdImageLine and the
-     *                                  current on do not have the same size
      */
-    public LcdImageLine join(LcdImageLine otherLine, int index)
-            throws IllegalArgumentException {
+    public LcdImageLine join(LcdImageLine otherLine, int index) {
         Preconditions.checkArgument(otherLine.size() == this.size());
 
         BitVector maskRight = new BitVector(size(), true).shift(index).not();
@@ -216,15 +216,14 @@ public final class LcdImageLine {
     }
 
     @Override public boolean equals(Object that) {
-        return lsb.equals(((LcdImageLine) that).lsb) && msb
-                .equals(((LcdImageLine) that).msb) && opacity
-                .equals(((LcdImageLine) that).opacity)
+        return lsb.equals(((LcdImageLine) that).lsb)
+                && msb.equals(((LcdImageLine) that).msb)
+                && opacity.equals(((LcdImageLine) that).opacity)
                 && that instanceof LcdImageLine;
     }
 
     @Override public int hashCode() {
-        return (int) (msb.hashCode() + 31 * lsb.hashCode()
-                + Math.pow(31, 2) * opacity.hashCode());
+        return Objects.hash(msb, lsb, opacity);
     }
 
     /**
@@ -242,7 +241,6 @@ public final class LcdImageLine {
          * @param size of the msb and lsb builders
          */
         public Builder(int size) {
-
             buildMsb = new BitVector.Builder(size);
             buildLsb = new BitVector.Builder(size);
         }
@@ -254,8 +252,7 @@ public final class LcdImageLine {
          * @param lsb   the value we want to give to the lsb of the line
          * @param index at which we want to set the msb and lsb
          */
-        public Builder setBytes(int index, int msb, int lsb)
-                throws IllegalStateException {
+        public Builder setBytes(int index, int msb, int lsb) {
             if (buildMsb == null || buildLsb == null)
                 throw new IllegalStateException();
 
