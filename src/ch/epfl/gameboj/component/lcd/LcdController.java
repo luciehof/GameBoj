@@ -106,8 +106,7 @@ public final class LcdController implements Component, Clocked {
     @Override public void cycle(long cycle) {
         currentCycle = cycle;
 
-        assert (cycle
-                <= nextNonIdleCycle) : "Current cycle is bigger than nextNonIdleCycle";
+        //assert (cycle<= nextNonIdleCycle) : "Current cycle is bigger than nextNonIdleCycle";
 
         // gestion allumage de l'écran : allumage
         if (nextNonIdleCycle == Long.MAX_VALUE && regFile
@@ -143,8 +142,8 @@ public final class LcdController implements Component, Clocked {
         }
 
         long relativeCycle = currentCycle - lastImageCycle;
-        int currentLine = (int) (relativeCycle / LINE_DRAW_DURATION) % LY_MAX_VALUE;
-        //int currentLine = regFile.get(Reg.LY);
+        //int currentLine = (int) (relativeCycle / LINE_DRAW_DURATION) % (LY_MAX_VALUE);
+        int currentLine = regFile.get(Reg.LY);
 
         if (currentLine < LCD_HEIGHT) {
 
@@ -174,8 +173,7 @@ public final class LcdController implements Component, Clocked {
                 nextNonIdleCycle += MODE3_DURATION;
 
                 if (regFile.get(Reg.LY) == 0) {
-                    nextImageBuilder = new LcdImage.Builder(LCD_WIDTH,
-                            LCD_HEIGHT);
+                    nextImageBuilder = new LcdImage.Builder(LCD_WIDTH, LCD_HEIGHT);
                     indexImage += 1;
                     lastImageCycle = currentCycle - MODE2_DURATION;
                     winY = 0;
@@ -459,8 +457,7 @@ public final class LcdController implements Component, Clocked {
         int plageTile = AddressMap.TILE_SOURCE[1];
         int indexTile = oam
                 .read(SPRITE_TILE_INDEX + indexSprite * SPRITE_ATTRIBUTES_SIZE);
-        int indexLineInTile = currentLine % 8;
-        int addressByte = plageTile + indexTile * 16 + indexLineInTile * 2;
+        int addressByte = plageTile + indexTile * 16 + currentLine * 2;
 
         if (flipH)
             return read(addressByte + lsbOrMsb);
