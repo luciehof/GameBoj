@@ -20,7 +20,6 @@ final public class Rom {
      * Constructs an array representing the ROM.
      *
      * @param data, array representing the data we want to store in the rom
-     * @throws NullPointerException if the given data is null
      */
     public Rom(byte[] data) {
         Objects.requireNonNull(data);
@@ -42,8 +41,6 @@ final public class Rom {
      *
      * @param index of byte we want to read
      * @return byte at index position of array data
-     * @throws IndexOutOfBoundsException if the given index is negative or is
-     *                                   bigger than the data array
      */
     public int read(int index) {
         if (0 > index || index >= data.length)

@@ -19,7 +19,6 @@ public interface Component {
      * @param address of the byte
      * @return the element at the index address or NO_DATA if there is no byte
      * at this address
-     * @throws IllegalArgumentException if the address is not a 16-bits value
      */
     public abstract int read(int address);
 

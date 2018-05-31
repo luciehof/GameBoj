@@ -623,14 +623,14 @@ public final class Cpu implements Component, Clocked {
     @Override public int read(int address) {
         Preconditions.checkBits16(address);
 
-        if (address == AddressMap.REG_IE) {
+        if (address == AddressMap.REG_IE)
             return IE;
-        } else if (address == AddressMap.REG_IF) {
+        else if (address == AddressMap.REG_IF)
             return IF;
-        } else if (AddressMap.HIGH_RAM_START <= address
-                && address < AddressMap.HIGH_RAM_END) {
+        else if (AddressMap.HIGH_RAM_START <= address
+                && address < AddressMap.HIGH_RAM_END)
             return highRam.read(address - AddressMap.HIGH_RAM_START);
-        }
+
         return NO_DATA;
     }
 
@@ -638,14 +638,13 @@ public final class Cpu implements Component, Clocked {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(data);
 
-        if (address == AddressMap.REG_IE) {
+        if (address == AddressMap.REG_IE)
             IE = data;
-        } else if (address == AddressMap.REG_IF) {
+        else if (address == AddressMap.REG_IF)
             IF = data;
-        } else if (AddressMap.HIGH_RAM_START <= address
-                && address < AddressMap.HIGH_RAM_END) {
+        else if (AddressMap.HIGH_RAM_START <= address
+                && address < AddressMap.HIGH_RAM_END)
             highRam.write(address - AddressMap.HIGH_RAM_START, data);
-        }
     }
 
 
@@ -736,7 +735,6 @@ public final class Cpu implements Component, Clocked {
      * @param opcode,  operation code
      * @param startBit integer, index
      * @return a Reg, the register's ID
-     * @throws IllegalArgumentException if startBit is greater or equal to 6
      */
     private Reg extractReg(Opcode opcode, int startBit) {
         Preconditions.checkArgument(startBit < 6);

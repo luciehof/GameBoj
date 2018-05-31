@@ -14,16 +14,14 @@ import java.util.Objects;
 
 public final class MBC0 implements Component {
 
-    private final Rom controlledRom;
     private static final int ROM_SIZE = 0x8000;
+
+    private final Rom controlledRom;
 
     /**
      * Constructs a MBC of type 0 for the given rom.
      *
      * @param rom Rom for which we build a controller
-     * @throws NullPointerException     if the given rom is null
-     * @throws IllegalArgumentException if the given rom is not containing
-     *                                  exactly 32 768 bytes
      */
     public MBC0(Rom rom) {
         Objects.requireNonNull(rom);
@@ -36,7 +34,7 @@ public final class MBC0 implements Component {
     public int read(int address) {
         Preconditions.checkBits16(address);
 
-        if (address <= 0x7FFF)
+        if (address < ROM_SIZE)
             return controlledRom.read(address);
 
         return NO_DATA;

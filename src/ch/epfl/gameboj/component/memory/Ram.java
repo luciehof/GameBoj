@@ -42,8 +42,6 @@ public final class Ram {
      *
      * @param index of byte we want to read
      * @return byte at index position of array data
-     * @throws IndexOutOfBoundsException if the given index is negative or is
-     *                                   bigger than the data array
      */
     public int read(int index) {
         if (0 > index || index >= data.length)
@@ -57,10 +55,6 @@ public final class Ram {
      *
      * @param index of byte we want to modify
      * @param value of byte (to replace the old one)
-     * @throws IndexOutOfBoundsException if the given index is negative or is
-     *                                   bigger than the data array
-     * @throws IllegalArgumentException  if the given value is not an 8-bits
-     *                                   value
      */
     public void write(int index, int value) {
         if (0 > index || index >= data.length)

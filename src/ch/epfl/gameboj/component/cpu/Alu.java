@@ -124,11 +124,8 @@ public final class Alu {
      *
      * @param valueFlags integer containing a value and its flags
      * @return an 8-bits or 16-bits value
-     * @throws IllegalArgumentException if the given valueFlags is not an
-     *                                  8-bits or 16-bits value
      */
-    public static int unpackValue(int valueFlags)
-            throws IllegalArgumentException {
+    public static int unpackValue(int valueFlags) {
         return extract(valueFlags, 8, 16);
     }
 
@@ -138,11 +135,8 @@ public final class Alu {
      * @param valueFlags integer containing a value and its flags
      * @return an 8-bits value representing the flags contained in the given
      * valueFlags
-     * @throws IllegalArgumentException if the given valueFlags is not an
-     *                                  8-bits or 16-bits value
      */
-    public static int unpackFlags(int valueFlags)
-            throws IllegalArgumentException {
+    public static int unpackFlags(int valueFlags) {
         return clip(8, valueFlags);
     }
 
@@ -155,10 +149,8 @@ public final class Alu {
      * @param c0 boolean, initial carry
      * @return a 32-bits value representing the result of the addition of l and
      * r and the initial carry
-     * @throws IllegalArgumentException if l or r are not 8-bits values
      */
-    public static int add(int l, int r, boolean c0)
-            throws IllegalArgumentException {
+    public static int add(int l, int r, boolean c0) {
         Preconditions.checkBits8(l);
         Preconditions.checkBits8(r);
 
@@ -177,9 +169,8 @@ public final class Alu {
      * @param l int 8-bits
      * @param r int 8-bits
      * @return a 32-bits value
-     * @throws IllegalArgumentException if l or r are not 8-bits values
      */
-    public static int add(int l, int r) throws IllegalArgumentException {
+    public static int add(int l, int r) {
         return add(l, r, false);
     }
 
@@ -191,9 +182,8 @@ public final class Alu {
      * @param l int 16-bits
      * @param r int 16-bits
      * @return a 32-bits value
-     * @throws IllegalArgumentException if l or r are not 16-bits values
      */
-    public static int add16L(int l, int r) throws IllegalArgumentException {
+    public static int add16L(int l, int r) {
         Preconditions.checkBits16(l);
         Preconditions.checkBits16(r);
 
@@ -210,9 +200,8 @@ public final class Alu {
      * @param l int 16-bits
      * @param r int 16-bits
      * @return a 32-bits value
-     * @throws IllegalArgumentException if l or r are not 16-bits values
      */
-    public static int add16H(int l, int r) throws IllegalArgumentException {
+    public static int add16H(int l, int r) {
         Preconditions.checkBits16(l);
         Preconditions.checkBits16(r);
 
@@ -230,10 +219,8 @@ public final class Alu {
      * @param r  int 8-bits
      * @param b0 boolean
      * @return an 32-bits value
-     * @throws IllegalArgumentException if l or r are not 8-bits values
      */
-    public static int sub(int l, int r, boolean b0)
-            throws IllegalArgumentException {
+    public static int sub(int l, int r, boolean b0) {
         Preconditions.checkBits8(l);
         Preconditions.checkBits8(r);
 
@@ -252,9 +239,8 @@ public final class Alu {
      * @param l int 8-bits
      * @param r int 8-bits
      * @return an 32-bits value
-     * @throws IllegalArgumentException if l or r are not 8-bits values
      */
-    public static int sub(int l, int r) throws IllegalArgumentException {
+    public static int sub(int l, int r) {
         Preconditions.checkBits8(l);
         Preconditions.checkBits8(r);
 
@@ -272,10 +258,8 @@ public final class Alu {
      * @param c boolean, 'carry', true if there is a carry from
      *          the addition of the total 8 bits, false otherwise
      * @return a 32-bits value
-     * @throws IllegalArgumentException
      */
-    public static int bcdAdjust(int v, boolean n, boolean h, boolean c)
-            throws IllegalArgumentException {
+    public static int bcdAdjust(int v, boolean n, boolean h, boolean c) {
         Preconditions.checkBits8(v);
 
         boolean fixL = h | (!n & clip(4, v) > 9);
@@ -297,9 +281,8 @@ public final class Alu {
      * @param l 8-bits integer
      * @param r 8-bits integer
      * @return an 8-bits value
-     * @throws IllegalArgumentException if l or r are not 8-bits values
      */
-    public static int and(int l, int r) throws IllegalArgumentException {
+    public static int and(int l, int r) {
         Preconditions.checkBits8(l);
         Preconditions.checkBits8(r);
 
@@ -315,9 +298,8 @@ public final class Alu {
      * @param l 8-bits integer
      * @param r 8-bits integer
      * @return an 8-bits value
-     * @throws IllegalArgumentException if l or r are not 8-bits values
      */
-    public static int or(int l, int r) throws IllegalArgumentException {
+    public static int or(int l, int r) {
         Preconditions.checkBits8(l);
         Preconditions.checkBits8(r);
 
@@ -333,9 +315,8 @@ public final class Alu {
      * @param l 8-bits integer
      * @param r 8-bits integer
      * @return an 8-bits value
-     * @throws IllegalArgumentException if l or r are not 8-bits values
      */
-    public static int xor(int l, int r) throws IllegalArgumentException {
+    public static int xor(int l, int r) {
         Preconditions.checkBits8(l);
         Preconditions.checkBits8(r);
 
@@ -350,9 +331,8 @@ public final class Alu {
      *
      * @param v 8-bits int
      * @return a 16-bits value
-     * @throws IllegalArgumentException if v is not an 8-bits value
      */
-    public static int shiftLeft(int v) throws IllegalArgumentException {
+    public static int shiftLeft(int v) {
         Preconditions.checkBits8(v);
 
         boolean c = false;
@@ -371,9 +351,8 @@ public final class Alu {
      *
      * @param v 8-bits int
      * @return a 16-bits value
-     * @throws IllegalArgumentException if v is not an 8-bits value
      */
-    public static int shiftRightA(int v) throws IllegalArgumentException {
+    public static int shiftRightA(int v) {
         Preconditions.checkBits8(v);
 
         int shiftedV = test(v, 7) ? v | mask(8) : v;
@@ -388,9 +367,8 @@ public final class Alu {
      *
      * @param v 8-bits int
      * @return a 16-bits value
-     * @throws IllegalArgumentException if v is not an 8-bits value
      */
-    public static int shiftRightL(int v) throws IllegalArgumentException {
+    public static int shiftRightL(int v) {
         Preconditions.checkBits8(v);
 
         return packValueZNHC(v >>> 1, (v >> 1) == 0, false, false,
@@ -404,9 +382,8 @@ public final class Alu {
      * @param d direction RotDir, left or right
      * @param v 8-bits int
      * @return a 16-bits value
-     * @throws IllegalArgumentException if v is not an 8-bits value
      */
-    public static int rotate(RotDir d, int v) throws IllegalArgumentException {
+    public static int rotate(RotDir d, int v) {
         Preconditions.checkBits8(v);
 
         int res = Bits.rotate(8, v, d.getD());
@@ -426,10 +403,8 @@ public final class Alu {
      * @param c boolean, 'carry', true if there is a carry from
      *          the addition of the total 8 bits, false otherwise
      * @return a 16-bits value
-     * @throws IllegalArgumentException if v is not an 8-bits value
      */
-    public static int rotate(RotDir d, int v, boolean c)
-            throws IllegalArgumentException {
+    public static int rotate(RotDir d, int v, boolean c) {
         Preconditions.checkBits8(v);
 
         int res = v;
@@ -449,9 +424,8 @@ public final class Alu {
      *
      * @param v 8-bits int
      * @return a 16-bits value
-     * @throws IllegalArgumentException if v is not an 8-bits value
      */
-    public static int swap(int v) throws IllegalArgumentException {
+    public static int swap(int v) {
         Preconditions.checkBits8(v);
 
         int switchV = Bits.rotate(8, v, 4);
@@ -467,12 +441,8 @@ public final class Alu {
      * @param v         8-bits int
      * @param bitIndex, index at which we want to test the bit
      * @return a 16-bits value with flag z to 1 if bit is 0, 0 otherwise
-     * @throws IllegalArgumentException if v is not an 8-bits value,
-     *                                  IndexOutOfBoundsException if bitIndex
-     *                                  is not between 0 and 7
      */
-    public static int testBit(int v, int bitIndex)
-            throws IllegalArgumentException, IndexOutOfBoundsException {
+    public static int testBit(int v, int bitIndex) {
         Preconditions.checkBits8(v);
 
         if (!(0 <= bitIndex && bitIndex <= 7))

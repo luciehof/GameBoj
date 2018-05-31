@@ -27,7 +27,6 @@ public final class Timer implements Component, Clocked {
      * Constructs a timer for a game boy, associated to the given cpu.
      *
      * @param cpu which we associate a timer to
-     * @throws NullPointerException if the given cpu is null
      */
     public Timer(Cpu cpu) {
         Objects.requireNonNull(cpu);

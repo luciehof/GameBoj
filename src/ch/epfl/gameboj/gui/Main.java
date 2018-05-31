@@ -28,23 +28,24 @@ public class Main extends Application {
     }
 
     @Override public void start(Stage primaryStage) throws Exception {
-        // vérifier qu'un seul argument a été passé au programme
+
+        // Check that exactly one argument is given to the program
         if (getParameters().getRaw().size() != 1) {
             System.out.println("Exactly one argument must be given");
             System.exit(1);
         }
 
-        // créer un Game Boy dont la cartouche est obtenue à partir du fichier ROM passé en argument
+        // Create a Game Boy which cartridge is obtained from the given ROM file
         String rom = getParameters().getRaw().get(0);
         GameBoy gameBoy = new GameBoy(Cartridge.ofFile(new File(rom)));
 
-        // créer l'interface graphique puis l'afficher à l'écran
+        // Create the graphical user interface and displays it on the sreen
         ImageView imageView = new ImageView();
         imageView.setFitWidth(LCD_WIDTH * RESIZING_FACTOR);
         imageView.setFitHeight(LCD_HEIGHT * RESIZING_FACTOR);
 
-        // Table associant les touches de l'ordinateur hôte à celles du Game Boy
-        Map<String, Joypad.Key> computerTextToGB = new HashMap<>();    // Integer à la place de KeyEvent ??
+        // Table associating the host computer's keys with those of Game Boy
+        Map<String, Joypad.Key> computerTextToGB = new HashMap<>();
         computerTextToGB.put("a", Joypad.Key.A);
         computerTextToGB.put("b", Joypad.Key.B);
         computerTextToGB.put("s", Joypad.Key.START);
@@ -69,7 +70,6 @@ public class Main extends Application {
             else if (computerCodeToGB.containsKey(event.getCode()))
                 gameBoy.joypad().keyReleased(computerCodeToGB.get(event.getCode()));
         });
-
 
         BorderPane borderPane = new BorderPane(imageView);
         Scene scene = new Scene(borderPane);

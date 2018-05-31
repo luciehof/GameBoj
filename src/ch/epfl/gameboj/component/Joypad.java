@@ -10,7 +10,10 @@ import java.util.Objects;
 
 public class Joypad implements Component {
 
-    private static final int ROW0_INDEX = 4, ROW1_INDEX = 5;
+    private static final int ROW0_INDEX = 4;
+    private static final int ROW1_INDEX = 5;
+    private static final int MASK = 0b11110000;
+
     private final Cpu cpu;
     private int regP1;
     private int row0;
@@ -47,9 +50,7 @@ public class Joypad implements Component {
                 cpu.requestInterrupt(Cpu.Interrupt.JOYPAD);
 
             regP1 = Bits.set(regP1, ROW0_INDEX, !Bits.test(data, ROW0_INDEX));
-            //System.out.println("ROW0_INDEX " + !Bits.test(data, 4));
             regP1 = Bits.set(regP1, ROW1_INDEX, !Bits.test(data, ROW1_INDEX));
-            //System.out.println("ROW1_INDEX " + !Bits.test(data, 5));
         }
     }
 
@@ -61,21 +62,18 @@ public class Joypad implements Component {
     public void keyPressed(Key key) {
         int index = key.index();
 
-        if (index < 4) {
-            if (!Bits.test(row0, index) && Bits.test(regP1, ROW0_INDEX))     // retirer points d'exclamation ? (negation), change rien, mais matt et andré on fait comme ca
+        if (index < ROW0_INDEX) {
+            if (!Bits.test(row0, index) && Bits.test(regP1, ROW0_INDEX))
                 cpu.requestInterrupt(Cpu.Interrupt.JOYPAD);
             row0 = Bits.set(row0, index, true);
         }
         else {
-            if (!Bits.test(row1, index - 4) && Bits.test(regP1, ROW1_INDEX)) { // ajout -4
+            if (!Bits.test(row1, index - ROW0_INDEX) && Bits.test(regP1, ROW1_INDEX))
                 cpu.requestInterrupt(Cpu.Interrupt.JOYPAD);
-                //System.out.println("---------------------interruption");
-            }
-            row1 = Bits.set(row1, index - 4, true); // ajout -4
-        }
 
+            row1 = Bits.set(row1, index - ROW0_INDEX, true);
+        }
         regP1 |= row0 | row1;
-        //System.out.println("fin keypressed " + "P1 " + regP1 + "  row0 " + row0 + "  row1 " + row1);
     }
 
     /**
@@ -86,20 +84,18 @@ public class Joypad implements Component {
     public void keyReleased(Key key) {
         int index = key.index();
 
-       if (index < 4)
+       if (index < ROW0_INDEX)
            row0 = Bits.set(row0, index, false);
        else
-           row1 = Bits.set(row1, index - 4, false);    // ajout -4
+           row1 = Bits.set(row1, index - ROW0_INDEX, false);
 
-        int mask = 0b11110000;
-        regP1 &= (mask | row0 | row1);
+        regP1 &= (MASK | row0 | row1);
     }
 
     private int columnState() {
         int line0 = Bits.test(regP1, ROW0_INDEX) ? row0 : 0;
         int line1 = Bits.test(regP1, ROW1_INDEX) ? row1 : 0;
-        int mask = 0b11110000;
 
-        return mask | line0 | line1;
+        return MASK | line0 | line1;
     }
 }

@@ -22,23 +22,30 @@ public final class LcdController implements Component, Clocked {
 
     public static final int LCD_WIDTH = 160;
     public static final int LCD_HEIGHT = 144;
+    private static final int BG_SIZE = 32, BG_PIXEL_SIZE = 256;
+    private static final int WIN_SIZE = 20;
+    private static final int TILE_SIZE = 8, BIG_TILE_HEIGHT = 16;
+    private static final int TILE_SHIFT_INDEX = 0x80;
+    private static final int LCDC_ADDRESS = 0xFF40,
+                            STAT_ADDRESS = 0xFF41,
+                            LY_ADDRESS = 0xFF44,
+                            LYC_ADDRESS = 0xFF45,
+                            DMA_ADDRESS = 0xFF46;
+
     private static final int MODE2_DURATION = 20;
     private static final int MODE3_DURATION = 43;
     private static final int MODE0_DURATION = 51;
     private static final int LINE_DRAW_DURATION = 114;
+
     private static final int LY_MAX_VALUE = 153;
-    private static final int BG_SIZE = 32, BG_PIXEL_SIZE = 256;
-    private static final int WIN_SIZE = 20;
-    private static final int TILE_SIZE = 8, BIG_TILE_HEIGHT = 16;
+    private static final int SET_WX = 7;
+
     private static final int NUMBER_OF_SPRITES = 40;
     private static final int MAX_SPRITES_PER_LINE = 10;
     private static final int SPRITE_X_COORDINATE_INDEX = 1;
     private static final int SPRITE_TILE_INDEX = 2;
-    private static final int SPRITE_CARACTERISICS_INDEX = 3;
+    private static final int SPRITE_CHARACTERISICS_INDEX = 3;
     private static final int SPRITE_ATTRIBUTES_SIZE = 4;
-    private static final int TILE_SHIFT_INDEX = 0x80;
-    private static final int SET_WX = 7;
-    private static final int LCDC_ADDRESS = 0xFF40, STAT_ADDRESS = 0xFF41, LY_ADDRESS = 0xFF44, LYC_ADDRESS = 0xFF45, DMA_ADDRESS = 0xFF46;
 
     private Cpu cpu;
     private Ram videoRam;
@@ -58,8 +65,8 @@ public final class LcdController implements Component, Clocked {
     int indexImage = 0;
     //DEBUG
 
-    private static final RegisterFile<Reg> regFile = new RegisterFile<>(
-            Reg.values());
+    private static final RegisterFile<Reg> regFile =
+            new RegisterFile<>(Reg.values());
 
     /**
      * LCD controller's 8 bits registers
@@ -406,7 +413,7 @@ public final class LcdController implements Component, Clocked {
                 LcdImageLine.Builder singleSpriteLineBuilder =
                         new LcdImageLine.Builder(LCD_WIDTH);
 
-                int spriteChars = oam.read(SPRITE_CARACTERISICS_INDEX
+                int spriteChars = oam.read(SPRITE_CHARACTERISICS_INDEX
                         + spriteIndex * SPRITE_ATTRIBUTES_SIZE);
 
                 int coordX = oam.read(SPRITE_X_COORDINATE_INDEX

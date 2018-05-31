@@ -37,9 +37,8 @@ public final class RegisterFile<E extends Register> {
      *
      * @param reg      register which value is changed
      * @param newValue int
-     * @throws IllegalArgumentException if newValue is not an 8-bits value
      */
-    public void set(E reg, int newValue) throws IllegalArgumentException {
+    public void set(E reg, int newValue) {
         Preconditions.checkBits8(newValue);
 
         allRegs[reg.index()] = (byte) newValue;

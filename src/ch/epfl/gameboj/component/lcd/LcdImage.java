@@ -5,6 +5,7 @@ import ch.epfl.gameboj.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * represents a Game Boy image
@@ -75,8 +76,7 @@ public final class LcdImage {
     }
 
     @Override public int hashCode() {
-        return (int) (Integer.hashCode(width) + 31 * Integer.hashCode(height)
-                + Math.pow(31, 2) * lines.hashCode());
+        return Objects.hash(width, height, lines);
     }
 
     /**

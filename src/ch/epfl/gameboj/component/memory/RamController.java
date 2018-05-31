@@ -27,12 +27,8 @@ public final class RamController implements Component {
      *                     want to control the ram
      * @param endAddress   integer representing the ending address where we
      *                     want to control the ram
-     * @throws NullPointerException     if the given ram is null
-     * @throws IllegalArgumentException if the given addresses are not
-     *                                  16 bits integers
      */
-    public RamController(Ram ram, int startAddress, int endAddress)
-            throws NullPointerException, IllegalArgumentException {
+    public RamController(Ram ram, int startAddress, int endAddress) {
         Objects.requireNonNull(ram);
 
         Preconditions.checkBits16(startAddress);
@@ -63,9 +59,8 @@ public final class RamController implements Component {
      * @param address of the byte we want to read
      * @return the byte at the given address or NO_DATA if there is no byte at
      * this address
-     * @throws IllegalArgumentException if the address is not a 16-bits value
      */
-    @Override public int read(int address) throws IllegalArgumentException {
+    @Override public int read(int address) {
         Preconditions.checkBits16(address);
 
         if (startAddress <= address && address < endAddress)
@@ -79,11 +74,8 @@ public final class RamController implements Component {
      *
      * @param address where we want to store the data
      * @param data    we want to store at the given address in the component
-     * @throws IllegalArgumentException if the address is not a 16-bits
-     *                                  value or if data is not a 8-bits value
      */
-    @Override public void write(int address, int data)
-            throws IllegalArgumentException {
+    @Override public void write(int address, int data) {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(data);
 

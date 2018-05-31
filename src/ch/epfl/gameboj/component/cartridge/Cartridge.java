@@ -41,8 +41,6 @@ public final class Cartridge implements Component {
      *
      * @param romFile, the file that must be contained in the rom bytes
      * @return a cartridge with a rom corresponding to the given file<
-     * @throws IllegalArgumentException if romFile does not have a 0 at
-     *                                  the position 0x147
      * @throws IOException              if romFile does not exist
      */
     public static Cartridge ofFile(File romFile) throws IOException {

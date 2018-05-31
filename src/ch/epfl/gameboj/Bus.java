@@ -21,7 +21,6 @@ public final class Bus {
      * Attaches the component to the bus.
      *
      * @param component the component to attach to the bus
-     * @throws NullPointerException if the component is null
      */
     public void attach(Component component) throws NullPointerException {
         Objects.requireNonNull(component);
@@ -37,9 +36,8 @@ public final class Bus {
      *                bus
      * @return the byte at the given address or NO_VALUE (=0xFF) if there is no
      * value at this address
-     * @throws IllegalArgumentException if address is not a 16-bits value
      */
-    public int read(int address) throws IllegalArgumentException {
+    public int read(int address) {
         Preconditions.checkBits16(address);
 
         for (Component component : components) {
@@ -57,10 +55,8 @@ public final class Bus {
      * @param address integer representing the address in the bus where we want
      *                to write
      * @param data    integer representing the data we want to store in the bus
-     * @throws IllegalArgumentException if the address is not a 16-bits value
-     *                                  or if the data is not a 8-bits value
      */
-    public void write(int address, int data) throws IllegalArgumentException {
+    public void write(int address, int data) {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(data);
 
