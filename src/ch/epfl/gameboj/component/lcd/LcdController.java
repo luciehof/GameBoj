@@ -300,8 +300,7 @@ public final class LcdController implements Component, Clocked {
     private LcdImageLine computeLine(int indexLine) {
         Objects.checkIndex(indexLine, LCD_HEIGHT);
 
-        int lineToCompute = (indexLine + regFile.get(Reg.SCY)) % BG_PIXEL_SIZE;
-        //int lineToCompute = Bits.clip(8, indexLine + regFile.get(Reg.SCY));
+        int lineToCompute = Bits.clip(8, indexLine + regFile.get(Reg.SCY));
         LcdImageLine completeLine = new LcdImageLine.Builder(BG_PIXEL_SIZE)
                 .build();
 

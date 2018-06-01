@@ -9,6 +9,12 @@ import javafx.scene.image.WritableImage;
 import static ch.epfl.gameboj.component.lcd.LcdController.LCD_HEIGHT;
 import static ch.epfl.gameboj.component.lcd.LcdController.LCD_WIDTH;
 
+/**
+ * Converts the Gameboy's images into javafx images
+ *
+ * @author Lucie Hoffmann (286865)
+ * @author Marie Jaillot (270130)
+ */
 public final class ImageConverter {
 
     private static final int[] COLOR_MAP = new int[] {

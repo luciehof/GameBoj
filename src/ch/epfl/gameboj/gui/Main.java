@@ -19,6 +19,12 @@ import java.util.Map;
 import static ch.epfl.gameboj.component.lcd.LcdController.LCD_HEIGHT;
 import static ch.epfl.gameboj.component.lcd.LcdController.LCD_WIDTH;
 
+/**
+ * Main class
+ *
+ * @author Lucie Hoffmann (286865)
+ * @author Marie Jaillot (270130)
+ */
 public class Main extends Application {
 
     private static final int RESIZING_FACTOR = 2;
